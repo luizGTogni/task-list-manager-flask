@@ -3,12 +3,8 @@ class Task:
         self._id = id
         self.title = title
         self.description = description
-        self._completed = completed
+        self.completed = completed
 
-    @property
-    def completed(self):
-        return self._completed
-    
     @property
     def id(self):
         return self._id
