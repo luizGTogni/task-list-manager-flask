@@ -24,7 +24,7 @@ def get_task(task_id):
     if len(task) > 0:
         return jsonify(task[0].to_dict())
 
-    return jsonify({ "message": "Not found task" }), 404
+    return jsonify({ "message": "Task not found" }), 404
 
 @app.route("/tasks/<int:task_id>", methods=["PUT"])
 def update_task(task_id):
@@ -38,4 +38,14 @@ def update_task(task_id):
         
         return jsonify({ "message": "Task updated successfully" })
 
-    return jsonify({ "message": "Not found task" }), 404
+    return jsonify({ "message": "Task not found" }), 404
+
+@app.route("/tasks/<int:task_id>", methods=["DELETE"])
+def delete_task(task_id):
+    task = [task for task in tasks if task.id == task_id]
+
+    if len(task) > 0:
+        tasks.remove(task[0])
+        return jsonify({ "message": "Task deleted successfully" })
+
+    return jsonify({ "message": "Task not found" }),  404
