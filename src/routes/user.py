@@ -52,7 +52,7 @@ def create_user():
 @app.route("/users/me", methods=["GET"])
 @login_required
 def get_user():
-    pass
+    return jsonify(current_user.to_dict())
 
 @app.route("/logout", methods=["GET"])
 def logout():
