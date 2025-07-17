@@ -19,5 +19,5 @@ class User(db.Model, UserMixin):
             "username": self.username,
             "email": self.email,
             "role": self.role,
-            "tasks": self.tasks
+            "tasks": [task.to_dict() for task in self.tasks]
         }
