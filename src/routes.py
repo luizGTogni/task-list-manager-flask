@@ -36,7 +36,7 @@ def get_task(task_id):
     if task:
         return jsonify(task.to_dict())
 
-    return jsonify({"message": "Task not found"}), 404
+    return jsonify({"error": "Task not found"}), 404
 
 
 @app.route("/tasks/<int:task_id>", methods=["PUT"])
@@ -54,8 +54,22 @@ def update_task(task_id):
 
         return jsonify({"message": "Task updated successfully", "id": task.id})
 
-    return jsonify({"message": "Task not found"}), 404
+    return jsonify({"error": "Task not found"}), 404
 
+@app.route("/tasks/<int:task_id>/completed", methods=["PATCH"])
+def update_completed_task(task_id):
+    task = Task.query.get(task_id)
+
+    if task:
+        task.completed = not task.completed
+        db.session.commit()
+
+        if task.completed:
+            return jsonify({ "message": "Task marked as complete", "id": task.id })
+        
+        return jsonify({ "message": "Task marked as incomplete", "id": task.id })
+        
+    return jsonify({"error": "Task not found"}), 404
 
 @app.route("/tasks/<int:task_id>", methods=["DELETE"])
 def delete_task(task_id):
@@ -66,4 +80,4 @@ def delete_task(task_id):
         db.session.commit()
         return jsonify({"message": "Task deleted successfully", "id": task_id})
 
-    return jsonify({"message": "Task not found"}), 404
+    return jsonify({"error": "Task not found"}), 404
