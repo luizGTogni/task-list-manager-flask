@@ -56,4 +56,8 @@ def get_user():
 
 @app.route("/logout", methods=["GET"])
 def logout():
-    pass
+    if current_user.is_authenticated:
+        logout_user()
+        return jsonify({ "message": "Logout successfully" })
+    
+    return jsonify({ "error": "You do not have permission for this operation" }), 401
