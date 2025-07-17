@@ -4,7 +4,6 @@ import requests
 BASE_URL = "http://localhost:5000/"
 tasks = []
 
-
 @pytest.fixture(scope="session")
 def logged_session():
     session = requests.Session()
