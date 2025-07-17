@@ -12,3 +12,12 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(60), nullable=False)
     role = db.Column(db.String(25), default="user")
     tasks = db.relationship("Task", backref="owner_user", lazy=True)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "username": self.username,
+            "email": self.email,
+            "role": self.role,
+            "tasks": self.tasks
+        }
