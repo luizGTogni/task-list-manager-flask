@@ -1,13 +1,10 @@
-class Task:
-    def __init__(self, id: int, title: str, description: str, completed = False) -> None:
-        self._id = id
-        self.title = title
-        self.description = description
-        self.completed = completed
+from src import db
 
-    @property
-    def id(self):
-        return self._id
+class Task(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(150), nullable=False, default="Task")
+    description = db.Column(db.String(150), nullable=False)
+    completed = db.Column(db.Boolean, nullable=False, default=False)
 
     def to_dict(self):
         return {
