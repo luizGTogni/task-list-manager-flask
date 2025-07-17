@@ -1,11 +1,26 @@
 from src import app, db
-from bcrypt import hashpw, gensalt
+from bcrypt import hashpw, gensalt, checkpw
 from src.models.user import User
 from flask import request, jsonify
+from flask_login import login_user, logout_user, login_required, current_user
 
 @app.route("/login", methods=["POST"])
 def login():
-    pass
+    body = request.get_json()
+    username = body.get("username")
+    password = body.get("password")
+
+    if username and password:
+        user_attempted = User.query.filter_by(username=username).first()
+
+        if user_attempted:
+            if checkpw(str.encode(password), user_attempted.password):
+                login_user(user_attempted)
+                return jsonify({ "message": "Login successfully", "user_id": user_attempted.id }), 200
+        
+        return jsonify({ "error": "Credentials invalid" }), 401
+
+    return jsonify({ "error": "Credentials is missing or invalid" }), 400
 
 @app.route("/users", methods=["POST"])
 def create_user():
@@ -35,6 +50,7 @@ def create_user():
     return jsonify({ "error": "Credentials is missing or invalid" }), 400
 
 @app.route("/users/me", methods=["GET"])
+@login_required
 def get_user():
     pass
 
