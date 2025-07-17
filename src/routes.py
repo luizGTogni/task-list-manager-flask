@@ -1,56 +1,69 @@
-from src import app, tasks
+from src import app, db
 from src.models.task import Task
 from flask import request, jsonify
 
-
 @app.route("/tasks", methods=["POST"])
 def create_task():
-    data = request.get_json()
-    id = len(tasks) + 1
+    body = request.get_json()
+    title = body["title"]
+    description = body["description"]
 
-    new_task = Task(id=id, title=data["title"], description=data["description"])
-    tasks.append(new_task)
+    if title and description:
+        new_task = Task(title=title, description=description)
+        db.session.add(new_task)
+        db.session.commit()
 
-    return jsonify({"message": "New task created successfully", "id": id}), 201
+        return jsonify({"message": "New task created successfully", "id": new_task.id}), 201
+
+    return jsonify({"error": "Credentials is missing or invalid"}), 400
 
 
 @app.route("/tasks", methods=["GET"])
 def get_tasks():
-    list_tasks = [task.to_dict() for task in tasks]
-    return jsonify({"tasks": list_tasks, "total_tasks": len(tasks)})
+    tasks_object = Task.query.all()
+
+    if tasks_object:
+        tasks = [task.to_dict() for task in tasks_object]
+        return jsonify({"tasks": tasks, "total_tasks": len(tasks)})
+    
+    return jsonify({"total_tasks": 0})
 
 
 @app.route("/tasks/<int:task_id>", methods=["GET"])
 def get_task(task_id):
-    task = [task for task in tasks if task.id == task_id]
+    task = Task.query.get(task_id)
 
-    if len(task) > 0:
-        return jsonify(task[0].to_dict())
+    if task:
+        return jsonify(task.to_dict())
 
     return jsonify({"message": "Task not found"}), 404
 
 
 @app.route("/tasks/<int:task_id>", methods=["PUT"])
 def update_task(task_id):
-    data = request.get_json()
-    task = [task for task in tasks if task.id == task_id]
+    body = request.get_json()
+    title = body["title"]
+    description = body["description"]
 
-    if len(task) > 0:
-        task[0].title = data["title"]
-        task[0].description = data["description"]
-        task[0].completed = data["completed"]
+    task = Task.query.get(task_id)
 
-        return jsonify({"message": "Task updated successfully", "id": task[0].id})
+    if task:
+        task.title = title
+        task.description = description
+        db.session.commit()
+
+        return jsonify({"message": "Task updated successfully", "id": task.id})
 
     return jsonify({"message": "Task not found"}), 404
 
 
 @app.route("/tasks/<int:task_id>", methods=["DELETE"])
 def delete_task(task_id):
-    task = [task for task in tasks if task.id == task_id]
+    task = Task.query.get(task_id)
 
-    if len(task) > 0:
-        tasks.remove(task[0])
-        return jsonify({"message": "Task deleted successfully", "id": task[0].id})
+    if task:
+        db.session.delete(task)
+        db.session.commit()
+        return jsonify({"message": "Task deleted successfully", "id": task_id})
 
     return jsonify({"message": "Task not found"}), 404
